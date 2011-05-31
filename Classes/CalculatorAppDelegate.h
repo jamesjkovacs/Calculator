@@ -1,6 +1,6 @@
 //
 //  CalculatorAppDelegate.h
-//  Calculator test
+//  Calculator
 //
 //  Created by Vijay Parikh on 5/24/11.
 //  Copyright 2011 Amano McGann. All rights reserved.
