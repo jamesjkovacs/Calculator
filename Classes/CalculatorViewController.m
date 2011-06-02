@@ -36,40 +36,41 @@
 
 - (IBAction)digitPressed:(UIButton *)sender
 {
-	//NSString *digit = [[sender titleLabel] text];
 	NSString *digit = sender.titleLabel.text;
 	if (userIsInTheMiddleOfTypingANumber) {
 		if ([self isFloatingNumberAlready: display.text] && [digit isEqual:@"."])
 			return;
-		//[display setText:[[display text] stringByAppendingString: digit]];
 		display.text = [display.text stringByAppendingString: digit];
 	} else {
-		//[display setText:digit];
 		display.text = digit;
 		userIsInTheMiddleOfTypingANumber = YES;
 	}
 
 }
-- (IBAction)operationPressed:(UIButton *)sender;
+- (IBAction)operationPressed:(UIButton *)sender
 {
     NSString *operation = sender.titleLabel.text;
 	NSLog(@"The answer to %@, the universe and everything is %d.", brain, 42);
-    if ([sender.titleLabel.text isEqual:@"x"] || [sender.titleLabel.text isEqual:@"x"] 
-        || [sender.titleLabel.text isEqual:@"x"]){
+    if ([sender.titleLabel.text isEqual:@"x"] || [sender.titleLabel.text isEqual:@"a"] 
+        || [sender.titleLabel.text isEqual:@"b"]){
         [self.brain setVariableAsOperand:operation];
+        display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
     }
 	else{
         if (userIsInTheMiddleOfTypingANumber) {
-            //[[self brain] setOperand:[[display text] doubleValue]];
-            //[self brain].operand = [[display text] doubleValue];
             self.brain.operand = [display.text doubleValue];
             userIsInTheMiddleOfTypingANumber = NO;
         }
-        //NSString *operation = [[sender titleLabel] text];
-        //double result = [[self brain] performOperation:operation];
         [self.brain performOperation:operation];
         display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
     }
+}
+- (IBAction)solvePressed:(UIButton *)sender
+{
+    NSDictionary *varValues = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt: 4], @"x",nil];
+    
+    double result = [CalculatorBrain evaluateExpression:self.brain.expression usingVariableValues:varValues];
+    display.text = [NSString stringWithFormat:@"%d", result];
 }
 
 

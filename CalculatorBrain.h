@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#define VARIABLE_PREFIX @“%”;
+
+#define VARIABLE_PREFIX @"%"
 
 @interface CalculatorBrain : NSObject {
 @private
@@ -19,16 +20,15 @@
 
 @property double operand;
 @property (readonly) id expression;
-//- (void)setOperand:(double)anOperand;
 - (void)setVariableAsOperand:(NSString *)variableName;
 - (double)performOperation:(NSString *)operation;
 
 + (double)evaluateExpression:(id)anExpression
          usingVariableValues:(NSDictionary *)variables;
-+ (NSSet *)variablesInExpression:(id)anExpression;
+//+ (NSSet *)variablesInExpression:(id)anExpression;
 + (NSString *)descriptionOfExpression:(id)anExpression;
 
-+ (id)propertyListForExpression:(id)anExpression;
-+ (id)expressionForPropertyList:(id)propertyList;
+//+ (id)propertyListForExpression:(id)anExpression;
+//+ (id)expressionForPropertyList:(id)propertyList;
 
 @end

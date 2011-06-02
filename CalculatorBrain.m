@@ -11,12 +11,63 @@
 
 @implementation CalculatorBrain
 
-/*- (void)setOperand:(double)anOperand
-{
-	operand = anOperand;
-}*/
-
 @synthesize operand;
+
++ (NSString *)descriptionOfExpression:(id)anExpression
+{
+    //NSString *expressionString = [[NSString alloc] init];
+    NSString *expressionString;
+    expressionString = @"test";
+    for(id obj in anExpression)
+    {
+        if([obj isKindOfClass:[NSNumber class]])
+        {
+            expressionString = [NSString stringWithFormat:@"%G",[(NSNumber *)obj doubleValue]];
+            NSLog(@"expressionString is %@",expressionString);
+        }
+        else if ([obj isKindOfClass:[NSString class]])
+        {
+            if(([obj length] > 1 ) && ([obj characterAtIndex:0] == '%'))
+                expressionString = [expressionString stringByAppendingString:[obj substringFromIndex:1]];
+            else
+                expressionString = [expressionString stringByAppendingString:(NSString *)obj];
+            NSLog(@"expressionString is %@",expressionString);
+        }
+    }
+	return expressionString;
+}
+
++ (double)evaluateExpression:(id)anExpression
+         usingVariableValues:(NSDictionary *)variables
+{
+    double returnResult;
+    CalculatorBrain *workerBrain = [[CalculatorBrain alloc]init];
+    for(id obj in anExpression)
+    {
+        NSLog(@"our element is %@",obj);
+        if([obj isKindOfClass:[NSNumber class]])
+        {
+            workerBrain.operand = [(NSNumber *)obj doubleValue];
+            NSLog(@"our new number is %G",workerBrain.operand);
+        }
+        else if([obj isKindOfClass:[NSString class]])
+        {
+            if(([obj length] > 1) && ([obj characterAtIndex:0] == '%'))
+            {
+                workerBrain.operand = [(NSNumber *)[variables objectForKey:obj] doubleValue];
+                NSLog(@"our new test number is %G",workerBrain.operand);
+            }
+            else
+            {
+                returnResult = [workerBrain performOperation:(NSString *)obj];
+                NSLog(@"our new operation is %@",obj);
+            }
+        }
+        else return 0;
+    }
+    [workerBrain release];
+    return returnResult;
+}
 
 -(id)expression
 {
@@ -29,13 +80,18 @@
 	return [original stringByAppendingString:@"This class sucks"];
 }
 
+- (void)addToExpression:(id)anEntry
+{
+    if(!internalExpression)internalExpression = [[NSMutableArray alloc]init];
+    [internalExpression addObject:(id)anEntry];
+    NSLog(@"expression = %@", internalExpression);
+}
 
 - (void)setVariableAsOperand:(NSString *)variableName
 {
-    NSString *vp = VARIABLE_PREFIX;
-    [internalExpression addObject:(id)[vp stringByAppendingString: variableName]];
+    variableName = [VARIABLE_PREFIX stringByAppendingString:variableName];
+    [self addToExpression:variableName];
 }
-
 
 -(void)performWaitingOperation
 {
@@ -54,8 +110,6 @@
 
 - (double)performOperation:(NSString *)operation 
 {
-    if(!internalExpression) internalExpression = [[NSMutableArray alloc]init];
-    [internalExpression addObject:(id)[NSNumber numberWithDouble: operand]];
 	if([operation isEqual:@"sqrt"]){
 		operand = sqrt(operand);
 	} else if ([operation isEqual:@"+/-"]) {			
@@ -71,6 +125,7 @@
 		waitingOperand = 0;
 		[waitingOperation release];
 		waitingOperation = nil;
+        [internalExpression removeAllObjects];
 	} else if ([operation isEqual:@"Store"]) {
 		numberMemory = operand;
 		[[NSUserDefaults standardUserDefaults] setDouble: operand forKey: @"Mem Recall"];
@@ -85,8 +140,8 @@
 		[waitingOperation release];
         waitingOperation = operation;
 		waitingOperand = operand;
-        [internalExpression addObject:(id)operation];
-        
+        [self addToExpression:(id)[NSNumber numberWithDouble: operand]];
+        [self addToExpression:operation];
 	}
 
 	return operand;
