@@ -21,6 +21,11 @@
 	}
 	return brain;
 }
+- (void)dealloc
+{
+    [brain release];
+    [super dealloc];
+}
 - (bool) isFloatingNumberAlready: (NSString *)number
 {
 	NSRange range = [number rangeOfString: @"."];
@@ -28,13 +33,13 @@
 		return NO;
 	return YES;
 }
-		
+
 - (IBAction)digitPressed:(UIButton *)sender
 {
 	//NSString *digit = [[sender titleLabel] text];
 	NSString *digit = sender.titleLabel.text;
 	if (userIsInTheMiddleOfTypingANumber) {
-		if ([self isFloatingNumberAlready: [display text]] && [digit isEqual:@"."])
+		if ([self isFloatingNumberAlready: display.text] && [digit isEqual:@"."])
 			return;
 		//[display setText:[[display text] stringByAppendingString: digit]];
 		display.text = [display.text stringByAppendingString: digit];
@@ -47,17 +52,24 @@
 }
 - (IBAction)operationPressed:(UIButton *)sender;
 {
+    NSString *operation = sender.titleLabel.text;
 	NSLog(@"The answer to %@, the universe and everything is %d.", brain, 42);
-	if (userIsInTheMiddleOfTypingANumber) {
-		//[[self brain] setOperand:[[display text] doubleValue]];
-		//[self brain].operand = [[display text] doubleValue];
-		self.brain.operand = [display.text doubleValue];
-		userIsInTheMiddleOfTypingANumber = NO;
-	}
-	NSString *operation = [[sender titleLabel] text];
-	//double result = [[self brain] performOperation:operation];
-	[self.brain performOperation:operation];
-	display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
+    if ([sender.titleLabel.text isEqual:@"x"] || [sender.titleLabel.text isEqual:@"x"] 
+        || [sender.titleLabel.text isEqual:@"x"]){
+        [self.brain setVariableAsOperand:operation];
+    }
+	else{
+        if (userIsInTheMiddleOfTypingANumber) {
+            //[[self brain] setOperand:[[display text] doubleValue]];
+            //[self brain].operand = [[display text] doubleValue];
+            self.brain.operand = [display.text doubleValue];
+            userIsInTheMiddleOfTypingANumber = NO;
+        }
+        //NSString *operation = [[sender titleLabel] text];
+        //double result = [[self brain] performOperation:operation];
+        [self.brain performOperation:operation];
+        display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
+    }
 }
 
 
