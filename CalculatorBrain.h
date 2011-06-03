@@ -25,7 +25,7 @@
 
 + (double)evaluateExpression:(id)anExpression
          usingVariableValues:(NSDictionary *)variables;
-//+ (NSSet *)variablesInExpression:(id)anExpression;
++ (NSSet *)variablesInExpression:(id)anExpression;
 + (NSString *)descriptionOfExpression:(id)anExpression;
 
 //+ (id)propertyListForExpression:(id)anExpression;

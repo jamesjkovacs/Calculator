@@ -13,6 +13,21 @@
 
 @synthesize operand;
 
++ (NSSet *)variablesInExpression:(id)anExpression
+{
+    NSMutableSet *variables = [NSMutableSet set];
+    for(id obj in anExpression)
+    {
+        if([obj isKindOfClass:[NSString class]] && [obj length] > 1)
+        {
+           if(![variables member:obj])
+               [variables addObject:obj];
+        }
+    }
+    if([variables count]) return (NSSet *)variables;
+    return nil;
+}
+
 + (NSString *)descriptionOfExpression:(id)anExpression
 {
     //NSString *expressionString = [[NSString alloc] init];
@@ -40,7 +55,7 @@
 + (double)evaluateExpression:(id)anExpression
          usingVariableValues:(NSDictionary *)variables
 {
-    double returnResult;
+    double returnResult = 0;
     CalculatorBrain *workerBrain = [[CalculatorBrain alloc]init];
     for(id obj in anExpression)
     {
@@ -63,15 +78,27 @@
                 NSLog(@"our new operation is %@",obj);
             }
         }
-        else return 0;
+        else 
+        {    
+            [workerBrain release];
+            return 0;
+        }
     }
+    if(![[anExpression lastObject] isKindOfClass:[NSString class]] || 
+       ![[anExpression lastObject] isEqualToString:@"="])
+       {
+           returnResult = [workerBrain performOperation:@"="];
+       }
     [workerBrain release];
     return returnResult;
 }
 
 -(id)expression
 {
-    return (id)[internalExpression copy] ;
+    NSMutableArray *expr = [internalExpression copy] ;
+    [expr autorelease];
+    return (id)expr ;
+//    return internalExpression;
 }
 
 -(NSString *)description
@@ -82,7 +109,8 @@
 
 - (void)addToExpression:(id)anEntry
 {
-    if(!internalExpression)internalExpression = [[NSMutableArray alloc]init];
+    if(!internalExpression)
+        internalExpression = [[NSMutableArray alloc]init];
     [internalExpression addObject:(id)anEntry];
     NSLog(@"expression = %@", internalExpression);
 }
@@ -125,7 +153,9 @@
 		waitingOperand = 0;
 		[waitingOperation release];
 		waitingOperation = nil;
-        [internalExpression removeAllObjects];
+        [internalExpression release];
+        internalExpression = [[NSMutableArray alloc]init];
+//        internalExpression = nil;
 	} else if ([operation isEqual:@"Store"]) {
 		numberMemory = operand;
 		[[NSUserDefaults standardUserDefaults] setDouble: operand forKey: @"Mem Recall"];
@@ -139,8 +169,10 @@
 		[self performWaitingOperation];
 		[waitingOperation release];
         waitingOperation = operation;
+        [operation retain];
 		waitingOperand = operand;
-        [self addToExpression:(id)[NSNumber numberWithDouble: operand]];
+        if(![CalculatorBrain variablesInExpression:[self expression]])
+        	[self addToExpression:(id)[NSNumber numberWithDouble: operand]];
         [self addToExpression:operation];
 	}
 

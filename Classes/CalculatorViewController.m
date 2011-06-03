@@ -50,27 +50,33 @@
 - (IBAction)operationPressed:(UIButton *)sender
 {
     NSString *operation = sender.titleLabel.text;
-	NSLog(@"The answer to %@, the universe and everything is %d.", brain, 42);
+//	NSLog(@"The answer to %@, the universe and everything is %d.", brain, 42);
     if ([sender.titleLabel.text isEqual:@"x"] || [sender.titleLabel.text isEqual:@"a"] 
-        || [sender.titleLabel.text isEqual:@"b"]){
+        || [sender.titleLabel.text isEqual:@"b"])
+    {
         [self.brain setVariableAsOperand:operation];
-        display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
     }
-	else{
-        if (userIsInTheMiddleOfTypingANumber) {
+	else
+    {
+        if (userIsInTheMiddleOfTypingANumber) 
+        {
             self.brain.operand = [display.text doubleValue];
             userIsInTheMiddleOfTypingANumber = NO;
         }
         [self.brain performOperation:operation];
-        display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
     }
+    if([CalculatorBrain variablesInExpression:self.brain.expression])
+        display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
+	else
+        display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
 }
 - (IBAction)solvePressed:(UIButton *)sender
 {
-    NSDictionary *varValues = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt: 4], @"x",nil];
+    NSDictionary *varValues = [NSDictionary dictionaryWithObjectsAndKeys:
+                               [NSNumber numberWithInt: 4], @"%x",[NSNumber numberWithInt: 8], @"%a",nil];
     
     double result = [CalculatorBrain evaluateExpression:self.brain.expression usingVariableValues:varValues];
-    display.text = [NSString stringWithFormat:@"%d", result];
+    display.text = [NSString stringWithFormat:@"%@ %g", [CalculatorBrain descriptionOfExpression:self.brain.expression],result];
 }
 
 
