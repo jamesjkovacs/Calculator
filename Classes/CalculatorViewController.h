@@ -15,6 +15,8 @@
 	bool userIsInTheMiddleOfTypingANumber;
 }
 
+@property (nonatomic, retain) IBOutlet UILabel *display;
+
 - (IBAction)digitPressed:(UIButton *)sender;
 - (IBAction)operationPressed:(UIButton *)sender;
 - (IBAction)solvePressed:(UIButton *)sender;

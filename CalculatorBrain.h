@@ -16,6 +16,7 @@
 	NSString *waitingOperation;
 	double waitingOperand;
     NSMutableArray *internalExpression;
+    bool variableJustAdded;
 }
 
 @property double operand;
@@ -28,7 +29,7 @@
 + (NSSet *)variablesInExpression:(id)anExpression;
 + (NSString *)descriptionOfExpression:(id)anExpression;
 
-//+ (id)propertyListForExpression:(id)anExpression;
-//+ (id)expressionForPropertyList:(id)propertyList;
++ (id)propertyListForExpression:(id)anExpression;
++ (id)expressionForPropertyList:(id)propertyList;
 
 @end

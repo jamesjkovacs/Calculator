@@ -9,23 +9,25 @@
 #import "CalculatorViewController.h"
 
 @interface CalculatorViewController()
-@property (readonly) CalculatorBrain *brain;
+//@property (readonly) CalculatorBrain *brain;
 @end
 
 @implementation CalculatorViewController
 
-- (CalculatorBrain *)brain
+@synthesize display;
+
+- (void) viewDidLoad
 {
-	if (!brain) {
-		brain = [[CalculatorBrain alloc] init];
-	}
-	return brain;
+    brain = [[CalculatorBrain alloc] init];
 }
-- (void)dealloc
-{
-    [brain release];
-    [super dealloc];
-}
+
+//- (CalculatorBrain *)brain
+//{
+//	if (!brain) {
+//		brain = [[CalculatorBrain alloc] init];
+//	}
+//	return brain;
+//}
 - (bool) isFloatingNumberAlready: (NSString *)number
 {
 	NSRange range = [number rangeOfString: @"."];
@@ -54,29 +56,44 @@
     if ([sender.titleLabel.text isEqual:@"x"] || [sender.titleLabel.text isEqual:@"a"] 
         || [sender.titleLabel.text isEqual:@"b"])
     {
-        [self.brain setVariableAsOperand:operation];
+        [brain setVariableAsOperand:operation];
     }
 	else
     {
         if (userIsInTheMiddleOfTypingANumber) 
         {
-            self.brain.operand = [display.text doubleValue];
+            brain.operand = [display.text doubleValue];
             userIsInTheMiddleOfTypingANumber = NO;
         }
-        [self.brain performOperation:operation];
+        [brain performOperation:operation];
     }
-    if([CalculatorBrain variablesInExpression:self.brain.expression])
-        display.text = [CalculatorBrain descriptionOfExpression:self.brain.expression];
+    if([CalculatorBrain variablesInExpression:brain.expression])
+        display.text = [CalculatorBrain descriptionOfExpression:brain.expression];
 	else
-        display.text = [NSString stringWithFormat:@"%g" , self.brain.operand];
+        display.text = [NSString stringWithFormat:@"%g" , brain.operand];
 }
 - (IBAction)solvePressed:(UIButton *)sender
 {
     NSDictionary *varValues = [NSDictionary dictionaryWithObjectsAndKeys:
                                [NSNumber numberWithInt: 4], @"%x",[NSNumber numberWithInt: 8], @"%a",nil];
     
-    double result = [CalculatorBrain evaluateExpression:self.brain.expression usingVariableValues:varValues];
-    display.text = [NSString stringWithFormat:@"%@ %g", [CalculatorBrain descriptionOfExpression:self.brain.expression],result];
+    double result = [CalculatorBrain evaluateExpression:brain.expression usingVariableValues:varValues];
+//    NSArray *jim = [[CalculatorBrain descriptionOfExpression:self.brain.expression] componentsSeparatedByString:@" "]; 
+//    NSString *test = [jim lastObject];
+//    if(![test isEqualToString: @"="])
+    if(![[[[CalculatorBrain descriptionOfExpression:brain.expression] componentsSeparatedByString:@" "] lastObject]isEqualToString: @"="])
+    	[brain performOperation:@"="];    
+    display.text = [NSString stringWithFormat:@"%@ %g", [CalculatorBrain descriptionOfExpression:brain.expression],result];
+}
+
+- (void) viewDidUnLoad
+{
+    self.display = nil;
+}
+- (void)dealloc
+{
+    [brain release];
+    [super dealloc];
 }
 
 

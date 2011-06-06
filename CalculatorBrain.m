@@ -13,6 +13,20 @@
 
 @synthesize operand;
 
++ (id)expressionForPropertyList:(id)propertyList
+{
+    NSMutableArray *expr = [propertyList copy] ;
+    [expr autorelease];
+    return (id)expr ;    
+}
+
++ (id)propertyListForExpression:(id)anExpression
+{
+    NSMutableArray *expr = [anExpression copy] ;
+    [expr autorelease];
+    return (id)expr ;    
+}
+
 + (NSSet *)variablesInExpression:(id)anExpression
 {
     NSMutableSet *variables = [NSMutableSet set];
@@ -30,26 +44,32 @@
 
 + (NSString *)descriptionOfExpression:(id)anExpression
 {
-    //NSString *expressionString = [[NSString alloc] init];
-    NSString *expressionString;
-    expressionString = @"test";
+    NSMutableString *expressionString = [[NSMutableString alloc] init];
+    BOOL firstEntry = YES;
+    //NSMutableString *expressionString;
+//    expressionString = @"test";
     for(id obj in anExpression)
     {
+        if(!firstEntry)
+            [expressionString appendString:@" "];
         if([obj isKindOfClass:[NSNumber class]])
         {
-            expressionString = [NSString stringWithFormat:@"%G",[(NSNumber *)obj doubleValue]];
+            //expressionString = [NSString stringWithFormat:@"%G",[(NSNumber *)obj doubleValue]];
+            [expressionString appendString:[(NSNumber *)obj stringValue]];
             NSLog(@"expressionString is %@",expressionString);
         }
         else if ([obj isKindOfClass:[NSString class]])
         {
             if(([obj length] > 1 ) && ([obj characterAtIndex:0] == '%'))
-                expressionString = [expressionString stringByAppendingString:[obj substringFromIndex:1]];
+                [expressionString appendString:[obj substringFromIndex:1]];
             else
-                expressionString = [expressionString stringByAppendingString:(NSString *)obj];
+                [expressionString appendString:(NSString *)obj];
             NSLog(@"expressionString is %@",expressionString);
         }
+        firstEntry = NO;
     }
-	return expressionString;
+	[expressionString autorelease];
+    return expressionString;
 }
 
 + (double)evaluateExpression:(id)anExpression
@@ -93,6 +113,13 @@
     return returnResult;
 }
 
+-(id)init
+{
+    [super init];
+    variableJustAdded = NO;
+    return self;
+}
+
 -(id)expression
 {
     NSMutableArray *expr = [internalExpression copy] ;
@@ -119,6 +146,11 @@
 {
     variableName = [VARIABLE_PREFIX stringByAppendingString:variableName];
     [self addToExpression:variableName];
+    operand = 0;
+    waitingOperand = 0;
+    [waitingOperation release];
+    waitingOperation = nil;
+    variableJustAdded = YES;
 }
 
 -(void)performWaitingOperation
@@ -156,7 +188,7 @@
 		waitingOperation = nil;
         [internalExpression release];
         internalExpression = [[NSMutableArray alloc]init];
-//        internalExpression = nil;
+        variableJustAdded = NO;
 	} else if ([operation isEqual:@"Store"]) {
 //		numberMemory = operand;
 		[[NSUserDefaults standardUserDefaults] setDouble: operand forKey: @"Mem Recall"];
@@ -168,15 +200,21 @@
 	} else if ([operation isEqual:@"Recall"]) {
 		//operand = numberMemory;
 		operand = [[NSUserDefaults standardUserDefaults] doubleForKey: @"Mem Recall"];
-	} else {
-		[self performWaitingOperation];
-		[waitingOperation release];
-        waitingOperation = operation;
-        [operation retain];
-		waitingOperand = operand;
-        if(![CalculatorBrain variablesInExpression:[self expression]])
+	} else{ 
+        if(!variableJustAdded)
+        {
         	[self addToExpression:(id)[NSNumber numberWithDouble: operand]];
+            variableJustAdded = NO;
+        }
         [self addToExpression:operation];
+        if (![CalculatorBrain variablesInExpression:[self expression]])
+        {
+            [self performWaitingOperation];
+            [waitingOperation release];
+            waitingOperation = operation;
+            [operation retain];
+            waitingOperand = operand;
+        }
 	}
 
 	return operand;
