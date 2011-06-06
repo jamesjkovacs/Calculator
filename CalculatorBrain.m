@@ -138,7 +138,8 @@
 
 - (double)performOperation:(NSString *)operation 
 {
-	if([operation isEqual:@"sqrt"]){
+	double numberMemory = 0;
+    if([operation isEqual:@"sqrt"]){
 		operand = sqrt(operand);
 	} else if ([operation isEqual:@"+/-"]) {			
 		operand = -(operand);
@@ -157,11 +158,13 @@
         internalExpression = [[NSMutableArray alloc]init];
 //        internalExpression = nil;
 	} else if ([operation isEqual:@"Store"]) {
-		numberMemory = operand;
+//		numberMemory = operand;
 		[[NSUserDefaults standardUserDefaults] setDouble: operand forKey: @"Mem Recall"];
         [[NSUserDefaults standardUserDefaults] synchronize];
 	} else if ([operation isEqual:@"Mem +"]) {
-		numberMemory += operand;
+		numberMemory = operand + [[NSUserDefaults standardUserDefaults] doubleForKey: @"Mem Recall"];
+		[[NSUserDefaults standardUserDefaults] setDouble: numberMemory forKey: @"Mem Recall"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
 	} else if ([operation isEqual:@"Recall"]) {
 		//operand = numberMemory;
 		operand = [[NSUserDefaults standardUserDefaults] doubleForKey: @"Mem Recall"];

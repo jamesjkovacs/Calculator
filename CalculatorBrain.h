@@ -14,7 +14,7 @@
 @private
 	double operand;
 	NSString *waitingOperation;
-	double waitingOperand, numberMemory;
+	double waitingOperand;
     NSMutableArray *internalExpression;
 }
 
