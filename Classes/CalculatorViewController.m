@@ -2,7 +2,7 @@
 //  CalculatorViewController.m
 //  Calculator
 //
-//  Created by Vijay Parikh on 5/24/11.
+//  Created by Jim Kovacs on 5/24/11.
 //  Copyright 2011 Amano McGann. All rights reserved.
 //
 
@@ -16,6 +16,7 @@
 
 @synthesize display;
 
+// Create an instance of the model object brain.
 - (void) viewDidLoad
 {
     brain = [[CalculatorBrain alloc] init];
@@ -28,6 +29,8 @@
 //	}
 //	return brain;
 //}
+// Private instance method called by digitPressed.  Checks to see if user already entered a
+// "." in the current number to prevent them from using it again.
 - (bool) isFloatingNumberAlready: (NSString *)number
 {
 	NSRange range = [number rangeOfString: @"."];
@@ -36,6 +39,8 @@
 	return YES;
 }
 
+// Called when user presses any of the number keys.  Will update the display with the current
+// number the user has entered (4.52, 43, etc.).
 - (IBAction)digitPressed:(UIButton *)sender
 {
 	NSString *digit = sender.titleLabel.text;
@@ -49,6 +54,9 @@
 	}
 
 }
+
+// User pressed one of the calculation buttons (+, -, c, x, etc.).  Will call CalculatorBrain
+// setVariableAsOperand if x,a,or b were pressed.  Otherwise performOperation is called.
 - (IBAction)operationPressed:(UIButton *)sender
 {
     NSString *operation = sender.titleLabel.text;
@@ -72,6 +80,9 @@
 	else
         display.text = [NSString stringWithFormat:@"%g" , brain.operand];
 }
+
+// User pushed the "Solve" button. Calls CalculatorBrain's evaluateExpression method 
+// and updates the display with the calculated result.
 - (IBAction)solvePressed:(UIButton *)sender
 {
     NSDictionary *varValues = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -90,6 +101,8 @@
 {
     self.display = nil;
 }
+
+// Release our model. 
 - (void)dealloc
 {
     [brain release];

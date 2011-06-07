@@ -2,7 +2,7 @@
 //  CalculatorBrain.m
 //  Calculator
 //
-//  Created by Vijay Parikh on 5/24/11.
+//  Created by Jim Kovacs on 5/24/11.
 //  Copyright 2011 Amano McGann. All rights reserved.
 //
 
@@ -13,6 +13,10 @@
 
 @synthesize operand;
 
+/*
+ * Class Method - returns copy of propertylist passed since user does not know that
+ * the expression is already a property list.
+*/
 + (id)expressionForPropertyList:(id)propertyList
 {
     NSMutableArray *expr = [propertyList copy] ;
@@ -20,6 +24,10 @@
     return (id)expr ;    
 }
 
+/*
+ * Class Method - returns copy of anExpression passed as a property list since user 
+ * does not know that the expression is already a property list.
+*/
 + (id)propertyListForExpression:(id)anExpression
 {
     NSMutableArray *expr = [anExpression copy] ;
@@ -27,6 +35,11 @@
     return (id)expr ;    
 }
 
+/*
+ * Class Method - returns an array of all the variables in the current expression (x, a, b).
+ * Will return nil if there are no variables. If the variabl is in the exression more than
+ * once (5 + x / 3 * x) the variable will only be added to the array once.
+*/
 + (NSSet *)variablesInExpression:(id)anExpression
 {
     NSMutableSet *variables = [NSMutableSet set];
@@ -42,6 +55,11 @@
     return nil;
 }
 
+/*
+ * Class Method - returns the expression array as a string.
+ * a space will be inserted between each element (24 + x / 3).
+ * this is used to update the user entry display once a variable has been added.
+*/
 + (NSString *)descriptionOfExpression:(id)anExpression
 {
     NSMutableString *expressionString = [[NSMutableString alloc] init];
@@ -71,7 +89,14 @@
 	[expressionString autorelease];
     return expressionString;
 }
-
+/*
+ * Class Method - Will iterate through the current expression array, insert variables using 
+ * the variables NSDictionary and calcuate the answer to the equation and return it as a 
+ * double.  It will create a temporary CalculatorBrain instance to run the elements through 
+ * the instance method performOperation:operation passing each operation and setting the local 
+ * operand variable.  The CalculatorBrain object is allocated and released each time this 
+ * method is called.
+*/
 + (double)evaluateExpression:(id)anExpression
          usingVariableValues:(NSDictionary *)variables
 {
@@ -112,7 +137,9 @@
     [workerBrain release];
     return returnResult;
 }
-
+/*
+ * Class initializer - initializes variablesJustAdded to NO.
+*/
 -(id)init
 {
     [super init];
@@ -134,6 +161,10 @@
 	return [original stringByAppendingString:@"This class sucks"];
 }
 
+/*
+ * Private Instance Method - Used to add entries (Operands and Operations) to the 
+ * internalExpression array.
+*/
 - (void)addToExpression:(id)anEntry
 {
     if(!internalExpression)
@@ -142,6 +173,12 @@
     NSLog(@"expression = %@", internalExpression);
 }
 
+/*
+ * Instance Method - Used to add a variable to internalExpression by calling 
+ * addToExpression and appending a "%" to the front so that it can be identified in the array.
+ * local calculation variables are cleared since we now have and expression to solve.
+ * the view controller will call this when the x, a, or b keys are pressed by the user.
+*/
 - (void)setVariableAsOperand:(NSString *)variableName
 {
     variableName = [VARIABLE_PREFIX stringByAppendingString:variableName];
@@ -153,6 +190,10 @@
     variableJustAdded = YES;
 }
 
+/* 
+ * Private Instance Method - called by performOperation to perform the 2 number calculations
+ * (+, -, /, *). In case of "/" will make sure not to divide by zero.
+*/
 -(void)performWaitingOperation
 {
 	if ([@"+" isEqual:waitingOperation]){
@@ -167,7 +208,15 @@
 		}
 	}
 }
-
+/*
+ * Instance Method - Takes the latest operation passed to it and calculates the result which
+ * is returned as a double.  Will use the current instance variable operand waitingOperation 
+ * and waitingOperand for the calculation if necessary.  If calculation is a single number 
+ * command (1/number), then just operand is used.  The storage and recall commands use 
+ * NSUserDefaults so that the values are retained even after exiting the application.
+ * Will also add each operand and operation to the internalExpression array in case a variable
+ * is added by calling the private instance method addToExpression.
+*/
 - (double)performOperation:(NSString *)operation 
 {
 	double numberMemory = 0;
@@ -219,6 +268,8 @@
 
 	return operand;
 }
+
+// release the instance array.
 - (void)dealloc
 {
     [internalExpression release];

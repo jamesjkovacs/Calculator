@@ -2,7 +2,7 @@
 //  CalculatorAppDelegate.h
 //  Calculator wtf
 //
-//  Created by Vijay Parikh on 5/24/11.
+//  Created by Jim Kovacs on 5/24/11.
 //  Copyright 2011 Amano McGann. All rights reserved.
 //
 
